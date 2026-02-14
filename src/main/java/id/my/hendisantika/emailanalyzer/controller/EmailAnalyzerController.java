@@ -3,6 +3,7 @@ package id.my.hendisantika.emailanalyzer.controller;
 import id.my.hendisantika.emailanalyzer.repository.EmailAnalysisRepository;
 import id.my.hendisantika.emailanalyzer.service.EmailAnalysisService;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 
 /**
  * Created by IntelliJ IDEA.
@@ -24,5 +25,10 @@ public class EmailAnalyzerController {
     public EmailAnalyzerController(EmailAnalysisService emailAnalysisService, EmailAnalysisRepository emailAnalysisRepository) {
         this.emailAnalysisService = emailAnalysisService;
         this.emailAnalysisRepository = emailAnalysisRepository;
+    }
+
+    @GetMapping("/analyze")
+    public String showAnalyzePage() {
+        return "analyze";
     }
 }
