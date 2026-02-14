@@ -3,6 +3,7 @@ package id.my.hendisantika.emailanalyzer.controller;
 import id.my.hendisantika.emailanalyzer.service.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 /**
@@ -34,5 +35,26 @@ public class UserController {
         }
 
         return "register";
+    }
+
+    @PostMapping("/register")
+    public String register(
+            @RequestParam String username,
+            @RequestParam String password) {
+
+        if (userService.usernameExists(username)) {
+            return "redirect:/register?error";
+        }
+
+        try {
+            userService.registerUser(username, password);
+        } catch (IllegalArgumentException e) {
+            return "redirect:/register?weakPassword=true";
+        }
+
+        //userService.registerUser(username, password);
+
+        // on laisse Spring Security gérer l’authentification
+        return "redirect:/login";
     }
 }
