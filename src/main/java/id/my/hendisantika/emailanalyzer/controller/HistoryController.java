@@ -1,7 +1,11 @@
 package id.my.hendisantika.emailanalyzer.controller;
 
 import id.my.hendisantika.emailanalyzer.repository.EmailAnalysisRepository;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 
 /**
  * Created by IntelliJ IDEA.
@@ -21,5 +25,16 @@ public class HistoryController {
 
     public HistoryController(EmailAnalysisRepository repo) {
         this.repo = repo;
+    }
+
+    @GetMapping("/history")
+    public String history(
+            @AuthenticationPrincipal UserDetails user,
+            Model model) {
+
+        model.addAttribute("history",
+                repo.findByUsernameOrderByAnalyzedAtDesc(user.getUsername()));
+
+        return "history";
     }
 }
