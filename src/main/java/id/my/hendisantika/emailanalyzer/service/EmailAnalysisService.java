@@ -86,4 +86,8 @@ public class EmailAnalysisService {
         return repo;
     }
 
+    public List<EmailAnalysisEntity> getHistory(String username) {
+        return repo.findByUsernameOrderByAnalyzedAtDesc(username);
+    }
+
 }
