@@ -1,4 +1,4 @@
-package id.my.hendisantika.emailanalyzer.service;
+package id.my.hendisantika.emailanalyzer.security;
 
 import id.my.hendisantika.emailanalyzer.model.UserEntity;
 import id.my.hendisantika.emailanalyzer.repository.UserRepository;

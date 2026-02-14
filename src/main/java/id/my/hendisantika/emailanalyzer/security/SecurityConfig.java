@@ -1,4 +1,4 @@
-package id.my.hendisantika.emailanalyzer.service;
+package id.my.hendisantika.emailanalyzer.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
