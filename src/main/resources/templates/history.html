@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout-private :: layout">
+
+<div>
+    <section>
+        <h2>Historical</h2>
+
+        <table border="1">
+            <tr>
+                <th>Date</th>
+                <th>Score</th>
+                <th>Status</th>
+                <th>Email</th>
+            </tr>
+
+            <tr th:each="h : ${history}">
+                <td th:text="${h.date}"></td>
+                <td th:text="${h.score}"></td>
+                <td th:text="${h.suspicious ? '⚠️ Suspect' : 'OK'}"></td>
+                <td th:text="${#strings.abbreviate(h.content, 40)}"></td>
+            </tr>
+        </table>
+
+</div>
+</section>
+</html>
