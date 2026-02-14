@@ -1,5 +1,6 @@
 package id.my.hendisantika.emailanalyzer.service;
 
+import id.my.hendisantika.emailanalyzer.model.UserEntity;
 import id.my.hendisantika.emailanalyzer.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -33,4 +34,17 @@ public class UserService {
         return userRepository.findByUsername(username).isPresent();
     }
 
+    public void registerUser(String username, String rawPassword) {
+        if (!passwordStrengthService.isStrong(rawPassword)) {
+            throw new IllegalArgumentException("Weak password");
+        }
+
+        UserEntity user = new UserEntity();
+        user.setUsername(username);
+        user.setPassword(passwordEncoder.encode(rawPassword));
+
+        user.setRole("ROLE_USER");
+
+        userRepository.save(user);
+    }
 }
