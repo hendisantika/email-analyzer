@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="layout-private :: layout">
+
+<section>
+
+    <h1>Email Analyzer 🔍</h1>
+
+    <p>Bienvenue <strong sec:authentication="name"></strong></p>
+
+    <form th:action="@{/analyze}" method="post">
+    <textarea name="emailContent"
+              rows="10"
+              cols="70"
+              placeholder="Paste the email content here..."></textarea>
+        <br><br>
+        <button type="submit">Analyser</button>
+    </form>
+
+    <div th:if="${result}">
+        <h3>Résultat :</h3>
+        <p th:text="${result.message}"
+           th:style="${result.message.contains('⚠️')} ? 'color:red' : 'color:green'"></p>
+        <p>Score : <span th:text="${result.score}"></span></p>
+        <div th:if="${result.reasons}">
+            <p>Words detected :</p>
+            <ul>
+                <li th:each="r : ${result.reasons}" th:text="${r}"></li>
+            </ul>
+        </div>
+    </div>
+
+
+    <form th:action="@{/logout}" method="post" style="display:inline;">
+        <button type="submit">Logout</button>
+    </form>
+
+</section>
+
+</html>
