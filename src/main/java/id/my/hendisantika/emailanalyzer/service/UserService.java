@@ -28,4 +28,9 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
         this.passwordStrengthService = passwordStrengthService;
     }
+
+    public boolean usernameExists(String username) {
+        return userRepository.findByUsername(username).isPresent();
+    }
+
 }
