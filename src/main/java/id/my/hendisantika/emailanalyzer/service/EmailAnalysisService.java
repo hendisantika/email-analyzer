@@ -82,4 +82,8 @@ public class EmailAnalysisService {
         return result;
     }
 
+    public EmailAnalysisRepository getRepo(){
+        return repo;
+    }
+
 }
