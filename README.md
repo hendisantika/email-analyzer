@@ -17,6 +17,7 @@ The application allows authenticated users to:
 ---
 
 ## 📑 Table of Contents
+- [Screenshots](#-screenshots)
 - [Why This Project Matters](#-why-this-project-matters)
 - [Features](#-features)
 - [Tech Stack](#️-tech-stack)
@@ -32,6 +33,31 @@ The application allows authenticated users to:
 - [Contributing](#-contributing)
 - [Author](#-author)
 - [License](#-license)
+
+---
+
+## 📸 Screenshots
+
+### 🔐 Login Page
+Beautiful, modern login interface with glass-morphism design and gradient backgrounds.
+
+<div align="center">
+  <img src="img/screenshots/login.png" alt="Login Page" width="800">
+</div>
+
+### 📝 Registration Page
+Clean registration form with password strength validation and security indicators.
+
+<div align="center">
+  <img src="img/screenshots/create.png" alt="Registration Page" width="800">
+</div>
+
+### 🔍 Email Analysis Dashboard
+Professional analysis interface with real-time threat detection and color-coded results.
+
+<div align="center">
+  <img src="img/screenshots/analyze.png" alt="Email Analysis Page" width="800">
+</div>
 
 ---
 
