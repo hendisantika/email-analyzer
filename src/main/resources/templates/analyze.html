@@ -4,38 +4,452 @@
       th:replace="layout-private :: layout">
 
 <section>
+    <div class="row">
+        <div class="col-12">
+            <!-- Welcome Header -->
+            <div class="welcome-header mb-4">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                    <div>
+                        <h1 class="page-title mb-2">
+                            <i class="bi bi-search"></i>
+                            Email Analyzer
+                        </h1>
+                        <p class="welcome-text mb-0">
+                            Bienvenue <strong sec:authentication="name" class="user-highlight"></strong>!
+                            Analyze emails for potential phishing threats
+                        </p>
+                    </div>
+                    <div class="stats-badge">
+                        <i class="bi bi-shield-check"></i>
+                        <span>Powered by AI Detection</span>
+                    </div>
+                </div>
+            </div>
 
-    <h1>Email Analyzer 🔍</h1>
+            <div class="row g-4">
+                <!-- Analysis Form -->
+                <div class="col-12 col-lg-6">
+                    <div class="glass-card h-100">
+                        <div class="card-header-custom mb-4">
+                            <i class="bi bi-envelope-open-fill"></i>
+                            <h3>Submit Email for Analysis</h3>
+                        </div>
 
-    <p>Bienvenue <strong sec:authentication="name"></strong></p>
+                        <form th:action="@{/analyze}" method="post">
+                            <div class="mb-4">
+                                <label class="form-label">
+                                    <i class="bi bi-file-text me-2"></i>
+                                    Email Content
+                                </label>
+                                <textarea name="emailContent"
+                                          class="form-control email-textarea"
+                                          rows="12"
+                                          placeholder="Paste the email content here...&#10;&#10;Example:&#10;Subject: Urgent - Your account needs verification&#10;Body: Dear user, click this link immediately to verify your account...&#10;&#10;Tip: Include both subject and body for best results"
+                                          required></textarea>
+                                <div class="form-text">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Paste the full email content including subject and body
+                                </div>
+                            </div>
 
-    <form th:action="@{/analyze}" method="post">
-    <textarea name="emailContent"
-              rows="10"
-              cols="70"
-              placeholder="Paste the email content here..."></textarea>
-        <br><br>
-        <button type="submit">Analyser</button>
-    </form>
+                            <button type="submit" class="btn btn-analyze w-100">
+                                <i class="bi bi-search me-2"></i>
+                                Analyser Email
+                            </button>
+                        </form>
 
-    <div th:if="${result}">
-        <h3>Résultat :</h3>
-        <p th:text="${result.message}"
-           th:style="${result.message.contains('⚠️')} ? 'color:red' : 'color:green'"></p>
-        <p>Score : <span th:text="${result.score}"></span></p>
-        <div th:if="${result.reasons}">
-            <p>Words detected :</p>
-            <ul>
-                <li th:each="r : ${result.reasons}" th:text="${r}"></li>
-            </ul>
+                        <!-- Info Cards -->
+                        <div class="row g-3 mt-3">
+                            <div class="col-6">
+                                <div class="info-card safe">
+                                    <i class="bi bi-shield-check"></i>
+                                    <span>Secure Analysis</span>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="info-card fast">
+                                    <i class="bi bi-lightning-charge-fill"></i>
+                                    <span>Instant Results</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results Display -->
+                <div class="col-12 col-lg-6">
+                    <div class="glass-card h-100" th:if="${result}">
+                        <div class="card-header-custom mb-4">
+                            <i class="bi bi-clipboard-data-fill"></i>
+                            <h3>Analysis Results</h3>
+                        </div>
+
+                        <!-- Risk Score Display -->
+                        <div class="result-score-card"
+                             th:classappend="${result.message.contains('⚠️')} ? 'danger' : 'success'">
+                            <div class="score-icon">
+                                <i th:class="${result.message.contains('⚠️')} ? 'bi bi-exclamation-triangle-fill' : 'bi bi-shield-check-fill'"></i>
+                            </div>
+                            <div class="score-content">
+                                <div class="score-label">Risk Level</div>
+                                <div class="score-value" th:text="${result.message}"></div>
+                                <div class="score-number">
+                                    Score: <strong th:text="${result.score}"></strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Detected Keywords -->
+                        <div th:if="${result.reasons}" class="detected-keywords mt-4">
+                            <h5 class="keywords-title">
+                                <i class="bi bi-flag-fill me-2"></i>
+                                Suspicious Keywords Detected
+                            </h5>
+                            <div class="keywords-list">
+                                <span th:each="r : ${result.reasons}" class="keyword-badge">
+                                    <i class="bi bi-exclamation-circle-fill"></i>
+                                    <span th:text="${r}"></span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="result-actions mt-4">
+                            <a th:href="@{/history}" class="btn btn-secondary">
+                                <i class="bi bi-clock-history me-2"></i>
+                                View History
+                            </a>
+                            <a th:href="@{/analyze}" class="btn btn-primary">
+                                <i class="bi bi-arrow-clockwise me-2"></i>
+                                New Analysis
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div class="glass-card h-100 empty-state" th:unless="${result}">
+                        <div class="text-center">
+                            <div class="empty-icon">
+                                <i class="bi bi-search"></i>
+                            </div>
+                            <h4>No Analysis Yet</h4>
+                            <p class="text-muted">Submit an email on the left to see detailed analysis results here</p>
+
+                            <div class="tips-section mt-4">
+                                <h6><i class="bi bi-lightbulb-fill me-2"></i>Detection Tips:</h6>
+                                <ul class="tips-list">
+                                    <li>Suspicious words like "urgent", "verify", "account suspended"</li>
+                                    <li>Requests for personal information</li>
+                                    <li>Spelling and grammar errors</li>
+                                    <li>Unexpected attachments or links</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
+    <style>
+        .welcome-header {
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
 
-    <form th:action="@{/logout}" method="post" style="display:inline;">
-        <button type="submit">Logout</button>
-    </form>
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
 
+        .welcome-text {
+            color: #4a5568;
+            font-size: 1.05rem;
+        }
+
+        .user-highlight {
+            color: #667eea;
+        }
+
+        .stats-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .card-header-custom {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .card-header-custom i {
+            font-size: 1.75rem;
+            color: #667eea;
+        }
+
+        .card-header-custom h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin: 0;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .email-textarea {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1rem;
+            font-size: 0.95rem;
+            resize: vertical;
+            transition: all 0.3s ease;
+            font-family: 'Courier New', monospace;
+        }
+
+        .email-textarea:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn-analyze {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 1rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1.05rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-analyze:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+        }
+
+        .info-card {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #4a5568;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .info-card i {
+            font-size: 1.2rem;
+        }
+
+        .info-card.safe i {
+            color: #48bb78;
+        }
+
+        .info-card.fast i {
+            color: #f6ad55;
+        }
+
+        .result-score-card {
+            border-radius: 16px;
+            padding: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-score-card.success {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+        }
+
+        .result-score-card.danger {
+            background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+            color: white;
+        }
+
+        .score-icon {
+            font-size: 3.5rem;
+            opacity: 0.9;
+        }
+
+        .score-content {
+            flex: 1;
+        }
+
+        .score-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .score-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .score-number {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .detected-keywords {
+            background: #fff5f5;
+            border: 2px solid #feb2b2;
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .keywords-title {
+            color: #c53030;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .keywords-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .keyword-badge {
+            background: #fc8181;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 3px 10px rgba(252, 129, 129, 0.3);
+        }
+
+        .result-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .result-actions .btn {
+            flex: 1;
+            padding: 0.875rem;
+            border-radius: 12px;
+            font-weight: 600;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .result-actions .btn-secondary {
+            background: #718096;
+        }
+
+        .result-actions .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .result-actions .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .empty-state {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+        }
+
+        .empty-icon {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .empty-icon i {
+            font-size: 3rem;
+            color: white;
+        }
+
+        .empty-state h4 {
+            color: #2d3748;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .tips-section {
+            background: #edf2f7;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: left;
+        }
+
+        .tips-section h6 {
+            color: #667eea;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .tips-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .tips-list li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            color: #4a5568;
+        }
+
+        .tips-list li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #48bb78;
+            font-weight: bold;
+        }
+    </style>
 </section>
 
 </html>

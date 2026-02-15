@@ -2,26 +2,427 @@
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="layout-private :: layout">
 
-<div>
-    <section>
-        <h2>Historical</h2>
+<section>
+    <div class="row">
+        <div class="col-12">
+            <!-- Page Header -->
+            <div class="page-header mb-4">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                    <div>
+                        <h1 class="page-title mb-2">
+                            <i class="bi bi-clock-history"></i>
+                            Analysis History
+                        </h1>
+                        <p class="page-subtitle mb-0">
+                            View all your previous email analyses and their results
+                        </p>
+                    </div>
+                    <a th:href="@{/analyze}" class="btn btn-analyze-new">
+                        <i class="bi bi-plus-circle-fill me-2"></i>
+                        New Analysis
+                    </a>
+                </div>
+            </div>
 
-        <table border="1">
-            <tr>
-                <th>Date</th>
-                <th>Score</th>
-                <th>Status</th>
-                <th>Email</th>
-            </tr>
+            <!-- Statistics Cards -->
+            <div class="row g-3 mb-4">
+                <div class="col-12 col-md-4">
+                    <div class="stat-card total">
+                        <div class="stat-icon">
+                            <i class="bi bi-file-earmark-text-fill"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" th:text="${#lists.size(history)}">0</div>
+                            <div class="stat-label">Total Analyses</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="stat-card suspicious">
+                        <div class="stat-icon">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" th:text="${#lists.size(#lists.select(history, h -> h.suspicious))}">0</div>
+                            <div class="stat-label">Suspicious Emails</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="stat-card safe">
+                        <div class="stat-icon">
+                            <i class="bi bi-shield-check-fill"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" th:text="${#lists.size(#lists.select(history, h -> !h.suspicious))}">0</div>
+                            <div class="stat-label">Safe Emails</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-            <tr th:each="h : ${history}">
-                <td th:text="${h.date}"></td>
-                <td th:text="${h.score}"></td>
-                <td th:text="${h.suspicious ? '⚠️ Suspect' : 'OK'}"></td>
-                <td th:text="${#strings.abbreviate(h.content, 40)}"></td>
-            </tr>
-        </table>
+            <!-- History Table -->
+            <div class="glass-card" th:if="${not #lists.isEmpty(history)}">
+                <div class="card-header-custom mb-4">
+                    <i class="bi bi-list-ul"></i>
+                    <h3>All Analyses</h3>
+                </div>
 
-</div>
+                <div class="table-responsive">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <i class="bi bi-calendar3 me-2"></i>
+                                    Date & Time
+                                </th>
+                                <th>
+                                    <i class="bi bi-bar-chart-fill me-2"></i>
+                                    Risk Score
+                                </th>
+                                <th>
+                                    <i class="bi bi-shield-fill me-2"></i>
+                                    Status
+                                </th>
+                                <th>
+                                    <i class="bi bi-envelope-fill me-2"></i>
+                                    Email Preview
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="h : ${history}" class="history-row">
+                                <td>
+                                    <div class="date-cell">
+                                        <i class="bi bi-clock me-2 text-muted"></i>
+                                        <span th:text="${#temporals.format(h.date, 'dd/MM/yyyy HH:mm')}"></span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="score-badge" th:classappend="${h.suspicious} ? 'high' : 'low'">
+                                        <i th:class="${h.suspicious} ? 'bi bi-arrow-up-circle-fill' : 'bi bi-arrow-down-circle-fill'"></i>
+                                        <span th:text="${h.score}"></span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="status-badge" th:classappend="${h.suspicious} ? 'danger' : 'success'">
+                                        <i th:class="${h.suspicious} ? 'bi bi-exclamation-triangle-fill' : 'bi bi-check-circle-fill'"></i>
+                                        <span th:text="${h.suspicious ? 'Suspect' : 'Safe'}"></span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="email-preview" th:text="${#strings.abbreviate(h.content, 100)}"></div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div class="glass-card empty-state-card" th:if="${#lists.isEmpty(history)}">
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="bi bi-inbox"></i>
+                    </div>
+                    <h3>No History Yet</h3>
+                    <p class="text-muted">You haven't analyzed any emails yet. Start analyzing to see your history here.</p>
+                    <a th:href="@{/analyze}" class="btn btn-primary btn-lg mt-3">
+                        <i class="bi bi-search me-2"></i>
+                        Analyze Your First Email
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .page-header {
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .page-subtitle {
+            color: #4a5568;
+            font-size: 1.05rem;
+        }
+
+        .btn-analyze-new {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 0.875rem 1.75rem;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-analyze-new:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.75rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+        }
+
+        .stat-card.total .stat-icon {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .stat-card.suspicious .stat-icon {
+            background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+            color: white;
+        }
+
+        .stat-card.safe .stat-icon {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+        }
+
+        .stat-content {
+            flex: 1;
+        }
+
+        .stat-value {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: #2d3748;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #718096;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .card-header-custom {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .card-header-custom i {
+            font-size: 1.75rem;
+            color: #667eea;
+        }
+
+        .card-header-custom h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin: 0;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .history-table thead th {
+            background: #f7fafc;
+            color: #4a5568;
+            font-weight: 700;
+            padding: 1.25rem 1rem;
+            text-align: left;
+            border-bottom: 2px solid #e2e8f0;
+            font-size: 0.95rem;
+        }
+
+        .history-table thead th:first-child {
+            border-top-left-radius: 12px;
+        }
+
+        .history-table thead th:last-child {
+            border-top-right-radius: 12px;
+        }
+
+        .history-table tbody tr {
+            transition: all 0.3s ease;
+        }
+
+        .history-table tbody tr:hover {
+            background: #f7fafc;
+        }
+
+        .history-table tbody td {
+            padding: 1.25rem 1rem;
+            border-bottom: 1px solid #e2e8f0;
+            color: #4a5568;
+        }
+
+        .date-cell {
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .score-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .score-badge.high {
+            background: #fff5f5;
+            color: #c53030;
+            border: 2px solid #feb2b2;
+        }
+
+        .score-badge.low {
+            background: #f0fff4;
+            color: #276749;
+            border: 2px solid #9ae6b4;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1.25rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .status-badge.danger {
+            background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+            color: white;
+            box-shadow: 0 3px 10px rgba(229, 62, 62, 0.3);
+        }
+
+        .status-badge.success {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            box-shadow: 0 3px 10px rgba(56, 161, 105, 0.3);
+        }
+
+        .email-preview {
+            color: #718096;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            max-width: 400px;
+        }
+
+        .empty-state-card {
+            min-height: 500px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .empty-state {
+            text-align: center;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .empty-icon {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.3);
+        }
+
+        .empty-icon i {
+            font-size: 4rem;
+            color: white;
+        }
+
+        .empty-state h3 {
+            color: #2d3748;
+            font-weight: 700;
+            font-size: 1.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .empty-state p {
+            font-size: 1.05rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .history-table {
+                font-size: 0.85rem;
+            }
+
+            .history-table thead th,
+            .history-table tbody td {
+                padding: 0.875rem 0.5rem;
+            }
+
+            .email-preview {
+                max-width: 200px;
+            }
+        }
+    </style>
 </section>
+
 </html>
